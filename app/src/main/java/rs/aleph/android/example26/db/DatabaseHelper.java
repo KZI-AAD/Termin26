@@ -10,6 +10,7 @@ import com.j256.ormlite.table.TableUtils;
 
 import java.sql.SQLException;
 
+import rs.aleph.android.example26.provider.ProductContract;
 import rs.aleph.android.example26.provider.model.Product;
 
 
@@ -18,17 +19,14 @@ import rs.aleph.android.example26.provider.model.Product;
  */
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
-    //Dajemo ime bazi
-    private static final String DATABASE_NAME    = "ormlite.db";
-
-    //i pocetnu verziju baze. Obicno krece od 1
-    private static final int    DATABASE_VERSION = 1;
-
     private Dao<Product, Integer> mProductDao = null;
 
     //Potrebno je dodati konstruktor zbog pravilne inicijalizacije biblioteke
     public DatabaseHelper(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context,
+                ProductContract.DATABASE_NAME,
+                null,
+                ProductContract.DATABASE_VERSION);
     }
 
     //Prilikom kreiranja baze potrebno je da pozovemo odgovarajuce metode biblioteke

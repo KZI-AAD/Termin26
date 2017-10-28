@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,7 @@ import java.util.List;
 import rs.aleph.android.example26.R;
 import rs.aleph.android.example26.activities.MainActivity;
 import rs.aleph.android.example26.db.DatabaseHelper;
+import rs.aleph.android.example26.provider.ProductContract;
 import rs.aleph.android.example26.provider.model.Product;
 
 /**
@@ -34,6 +36,8 @@ import rs.aleph.android.example26.provider.model.Product;
 public class MyListFragment extends ListFragment {
 
     private DatabaseHelper databaseHelper;
+    private Cursor c;
+    private MainActivity activity;
 
     //potrebno je dodati i jedan interato koji ce automatsi osvezavati prikaz
     private CloseableIterator<Product> iterator;
@@ -49,6 +53,7 @@ public class MyListFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        activity=((MainActivity)getActivity());
     }
 
     @Override
@@ -69,44 +74,32 @@ public class MyListFragment extends ListFragment {
         listener.onProductSelected(Integer.parseInt(cID));
     }
 
-    /**
-     * Potrebno je da kreiramo iterator koji ce prolaziti kroz celu bazi i dodavati
-     * nove elemente u listu kada se ona kreira. Za ovo nam je potreban kursor.
-     *
-     * **/
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        MainActivity activity=((MainActivity)getActivity());
+    public void onResume() {
+        super.onResume();
+        c = activity.getContentResolver().query(ProductContract.Product.contentUri, null, null, null, null);
+        if (c != null) {
 
-        try{
-            // build your query
-            iterator = getDatabaseHelper().getProductDao().closeableIterator();
+            //iz kursora izvlacimo kolone baze koji nas zanimaju
+            String[] from = new String[] { ProductContract.Product.FIELD_NAME_NAME, ProductContract.Product.FIELD_NAME_DESCRIPTION };
 
-            try {
-                //iz iteratora dobijemo sirove podatke koje moramo obraditit
-                AndroidDatabaseResults results = (AndroidDatabaseResults)iterator.getRawResults();
+            //i smestamo u nas layout na poziciju gde zelimo, pozicije su opisane id-om elemenata
+            int[] to = new int[] {R.id.name, R.id.description};
 
-                Cursor cursor = results.getRawCursor();
+            //inicijalizujemo adapter da se sam osvezava
+            adapter = new SimpleCursorAdapter(activity, R.layout.cinema_list, c, from, to, 0);
 
-                //iz kursora izvlacimo kolone baze koji nas zanimaju
-                String[] from = new String[] { Product.FIELD_NAME_NAME, Product.FIELD_NAME_DESCRIPTION };
-
-                //i smestamo u nas layout na poziciju gde zelimo, pozicije su opisane id-om
-                //elemenata
-                int[] to = new int[] {R.id.name, R.id.description};
-
-                //inicijalizujemo adapter da se sam osvezava
-                adapter = new SimpleCursorAdapter(activity, R.layout.cinema_list, cursor, from, to, 0);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+            //ListFrafgment vec u sebi ima listu sto znaci daje potrebno da samo dodamo adapter
+            setListAdapter(adapter);
         }
+    }
 
-        //ListFrafgment vec u sebi ima listu sto znaci daje potrebno da samo dodamo adapter
-        setListAdapter(adapter);
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (c != null) {
+            c.close();
+        }
     }
 
     @Override
@@ -127,27 +120,6 @@ public class MyListFragment extends ListFragment {
            listener = (OnProductSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString() + " must implement OnProductSelectedListener");
-        }
-    }
-
-    public DatabaseHelper getDatabaseHelper() {
-        if (databaseHelper == null) {
-            databaseHelper = OpenHelperManager.getHelper(getActivity(), DatabaseHelper.class);
-        }
-        return databaseHelper;
-    }
-
-    /**
-     * Na kraju rada obavezno osloboditi resurse
-     * */
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        try {
-            iterator.closeQuietly();
-        }catch (Exception e){
-            e.printStackTrace();
         }
     }
 }

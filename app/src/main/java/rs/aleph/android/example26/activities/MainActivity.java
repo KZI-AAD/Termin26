@@ -160,31 +160,6 @@ public class MainActivity extends AppCompatActivity implements OnProductSelected
         productId = 0;
     }
 
-    //da bi dodali podatak u bazu, potrebno je da napravimo objekat klase
-    //koji reprezentuje tabelu i popunimo podacima
-    private void addItem(){
-        Product product = new Product();
-        product.setmName("Apple");
-        product.setDescription("The apple tree is a deciduous tree in the rose family best known for its sweet, pomaceous fruit, the apple.");
-        product.setRating(5.0f);
-        product.setImage("apples.jpg");
-
-        //pozovemo metodu create da bi upisali u bazu
-        try {
-            getDatabaseHelper().getProductDao().create(product);
-
-            //refresh();
-
-            //koristimo automatsko osvezanje aktivnosti tako sto ponovo pozivamo kreiranje aktivnosti
-            finish();
-            startActivity(getIntent());
-
-            Toast.makeText(this, "Product inserted", Toast.LENGTH_SHORT).show();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
     /**Kada koristimo  Content provider sve sto zelimo da radimo nad bazom
      * Moramo da navedemo kroz odredjenu URI putanju
      *
@@ -199,11 +174,11 @@ public class MainActivity extends AppCompatActivity implements OnProductSelected
         // insert test
         ContentValues values = new ContentValues();
         values.clear();
-        values.put(rs.aleph.android.example26.provider.model.Product.FIELD_NAME_NAME, "apple");
-        values.put(rs.aleph.android.example26.provider.model.Product.FIELD_NAME_DESCRIPTION,"The apple tree is a deciduous tree in the rose family best known for its sweet, pomaceous fruit, the apple.");
-        values.put(rs.aleph.android.example26.provider.model.Product.FIELD_NAME_RATING, 5.0f);
-        values.put(rs.aleph.android.example26.provider.model.Product.FIELD_NAME_IMAGE, "apples.jpg");
-        getContentResolver().insert(ProductContract.CONTENT_URI, values);
+        values.put(ProductContract.Product.FIELD_NAME_NAME, "apple");
+        values.put(ProductContract.Product.FIELD_NAME_DESCRIPTION,"The apple tree is a deciduous tree in the rose family best known for its sweet, pomaceous fruit, the apple.");
+        values.put(ProductContract.Product.FIELD_NAME_RATING, 5.0f);
+        values.put(ProductContract.Product.FIELD_NAME_IMAGE, "apples.jpg");
+        getContentResolver().insert(ProductContract.Product.contentUri, values);
 
         Toast.makeText(this, "Inserted", Toast.LENGTH_SHORT).show();
 
@@ -217,18 +192,21 @@ public class MainActivity extends AppCompatActivity implements OnProductSelected
          *  Treci paramerar su vrednosti tih selekcionih argumenta
          *  Peti je po cemu zelimo da sortiramo Cursor
          */
-        Cursor c = getContentResolver().query(ProductContract.CONTENT_URI, null, null, null, null);
-        c.moveToFirst();
-        do {
-            for (int i = 0; i < c.getColumnCount(); i++) {
-                Log.d(getClass().getSimpleName(), c.getColumnName(i) + " : " + c.getString(i));
+        Cursor c = getContentResolver().query(ProductContract.Product.contentUri, null, null, null, null);
+        if (c != null) {
+            while (c.moveToNext()){
+                for (int i = 0; i < c.getColumnCount(); i++)
+                {
+                    Log.i("REZ", c.getColumnName(i) + " : " + c.getString(i));
+                }
             }
-        } while (c.moveToNext());
-        c.close();
+
+            //zatvorimo kursor obavezno!
+            c.close();
+        }
 
         finish();
         startActivity(getIntent());
-
     }
 
     @Override
@@ -271,12 +249,11 @@ public class MainActivity extends AppCompatActivity implements OnProductSelected
                 dialog.setTitle("Image dialog");
 
                 ImageView image = (ImageView) dialog.findViewById(R.id.image);
-                TextView textview = (TextView) dialog.findViewById(R.id.image_path);
 
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedImageUri);
                     image.setImageBitmap(bitmap);
-                    textview.setText(selectedImageUri.getPath());
+                    Toast.makeText(this, selectedImageUri.getPath(),Toast.LENGTH_SHORT).show();
 
                     dialog.show();
                 } catch (IOException e) {

@@ -33,8 +33,8 @@ public class ProductProvider extends OrmLiteSimpleContentProvider<DatabaseHelper
     @Override
     public boolean onCreate() {
         setMatcherController(new MatcherController()//
-                .add(Product.class, MimeTypeVnd.SubType.DIRECTORY, "", ProductContract.CONTENT_URI_PATTERN_MANY)//
-                .add(Product.class, MimeTypeVnd.SubType.ITEM, "#", ProductContract.CONTENT_URI_PATTERN_ONE));
+                .add(Product.class, MimeTypeVnd.SubType.DIRECTORY, "", ProductContract.Product.CONTENT_URI_PATTERN_MANY)//
+                .add(Product.class, MimeTypeVnd.SubType.ITEM, "#", ProductContract.Product.CONTENT_URI_PATTERN_ONE));
         return true;
     }
 }

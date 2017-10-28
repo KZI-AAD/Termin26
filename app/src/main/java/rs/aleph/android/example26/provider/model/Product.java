@@ -9,33 +9,29 @@ import rs.aleph.android.example26.provider.ProductContract;
 /**
  * Created by milossimic on 11/7/16.
  */
+
 //Kao i do sada moramo mapirati naziv tabele da bi znali kako da je smetimo u bazu
-@DatabaseTable(tableName = ProductContract.TABLE_NAME)
+@DatabaseTable(tableName = ProductContract.Product.TABLE_NAME)
 //Moramo dodati i content URI da bi znali gde se tacno nasa tabela nalazi content://AUTHORITY/products
-@AdditionalAnnotation.DefaultContentUri(authority = ProductContract.AUTHORITY, path = ProductContract.CONTENT_URI_PATH)
+@AdditionalAnnotation.DefaultContentUri(authority = ProductContract.AUTHORITY, path = ProductContract.Product.CONTENT_URI_PATH)
 //Takodje moramo mapirati i MIMETYPE_NAME da bi znali na koje sve tipove nasa tabela moze da reaguje tekst,slike,nasa tabela itd
-@AdditionalAnnotation.DefaultContentMimeTypeVnd(name = ProductContract.MIMETYPE_NAME, type = ProductContract.MIMETYPE_TYPE)
+@AdditionalAnnotation.DefaultContentMimeTypeVnd(name = ProductContract.Product.MIMETYPE_NAME, type = ProductContract.Product.MIMETYPE_TYPE)
 public class Product {
 
-    public static final String FIELD_NAME_ID     = "_id";
-    public static final String FIELD_NAME_NAME   = "name";
-    public static final String FIELD_NAME_DESCRIPTION   = "description";
-    public static final String FIELD_NAME_RATING   = "rating";
-    public static final String FIELD_NAME_IMAGE  = "image";
-
-    @DatabaseField(columnName = FIELD_NAME_ID, generatedId = true)
+    @DatabaseField(columnName = ProductContract.Product._ID, generatedId = true)
+    @AdditionalAnnotation.DefaultSortOrder
     private int mId;
 
-    @DatabaseField(columnName = FIELD_NAME_NAME)
+    @DatabaseField(columnName = ProductContract.Product.FIELD_NAME_NAME)
     private String mName;
 
-    @DatabaseField(columnName = FIELD_NAME_DESCRIPTION)
+    @DatabaseField(columnName = ProductContract.Product.FIELD_NAME_DESCRIPTION)
     private String description;
 
-    @DatabaseField(columnName = FIELD_NAME_RATING)
+    @DatabaseField(columnName = ProductContract.Product.FIELD_NAME_RATING)
     private float rating;
 
-    @DatabaseField(columnName = FIELD_NAME_IMAGE)
+    @DatabaseField(columnName = ProductContract.Product.FIELD_NAME_IMAGE)
     private String image;
 
     //ORMLite zahteva prazan konstuktur u klasama koje opisuju tabele u bazi!
