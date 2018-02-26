@@ -35,7 +35,6 @@ import rs.aleph.android.example26.provider.model.Product;
 * **/
 public class MyListFragment extends ListFragment {
 
-    private DatabaseHelper databaseHelper;
     private Cursor c;
     private MainActivity activity;
 
